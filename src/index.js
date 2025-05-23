@@ -5,11 +5,14 @@ const connectDB = require('./config/db');
 const Merchant = require('./models/Merchant');
 const Customer = require('./models/Customer');
 const Checkout = require('./models/Checkout');
+const { connectRedis } = require('./config/redis');
+const orderQueue = require('./queues/orderQueue');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 connectDB();
+connectRedis();
 
 app.use(express.json());
 
@@ -60,6 +63,20 @@ app.post('/test-models', async (req, res, next) => {
         next(err);
     }
 });
+
+app.post('/test-queue', async (req, res, next) =>{
+    try {
+        const job = await orderQueue.add({
+            checkout_id: 'chk_987',
+            payment_status: 'success',
+            payment_id: 'pay_123'
+        });
+        res.status(201).json({ jobId: job.id, status: 'queued' });
+    } catch (error) {
+        next(error);
+    }
+});
+
 
 // app.get('/error', (req, res, next) => {
 //     const err = new Error('Test erorr');
