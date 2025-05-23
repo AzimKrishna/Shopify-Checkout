@@ -10,7 +10,7 @@ class AuthController {
             }
             OTPService.validatePhone(phone);
             const otp = OTPService.generateOTP();
-            await OTPService.storeOTP(phone, otp);
+            await OTPService.storeOTP(merchant_id, phone, otp);
             // await OTPService.sendOTP(phone, otp);
 
             res.status(200).json({ message: `OTP sent successfully` });
@@ -26,7 +26,7 @@ class AuthController {
                 throw new Error('Merchant ID is required');
             }
             OTPService.validatePhone(phone);
-            await OTPService.verifyOTP(phone, otp);
+            await OTPService.verifyOTP(merchant_id, phone, otp);
             const customer = await OTPService.upsertCustomer(phone);
             const token = jwt.sign(
                 { customer_id: customer._id, role: 'customer' },

@@ -32,7 +32,7 @@ class OTPService{
         }
     }
 
-    static async verifyOTP(phone, otp){
+    static async verifyOTP(merchant_id, phone, otp){
         const key = `otp:${merchant_id}:${phone}`;
         const storedOTP = await redisClient.get(key);
         if(!storedOTP){

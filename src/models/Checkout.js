@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const addressSchema = require('./Customer').schema.path('addresses').schema; // Reuse embedded schema
 
 const cartItemSchema = mongoose.Schema({
     item_id: {
@@ -32,6 +33,7 @@ const checkoutSchema = mongoose.Schema({
         ref: 'Customer'
     },
     cart_items: [cartItemSchema],
+    shipping_address: addressSchema,
     total: {
         type: Number,
         required: true,

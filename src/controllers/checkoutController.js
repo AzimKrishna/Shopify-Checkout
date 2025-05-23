@@ -14,6 +14,18 @@ class CheckoutController {
             next(error);
         }
     }
+
+    static async updateCheckout(req, res, next){
+        try {
+            const { checkout_id, merchant_id, shipping_address, save_to_customer = true } = req.body;
+            const customer_id = req.customer_id;
+            const checkout = await CheckoutService.updateCheckout(checkout_id, customer_id, merchant_id, shipping_address, save_to_customer);
+            res.status(200).json({ message: 'Checkout updated', checkout_id: checkout._id });
+
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = CheckoutController;
