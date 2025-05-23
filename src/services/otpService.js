@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { redisClient } = require('../config/redis');
+const Customer = require('../models/Customer');
 
 
 class OTPService{
@@ -31,12 +32,44 @@ class OTPService{
         }
     }
 
+    static async verifyOTP(phone, otp){
+        const key = `otp:${phone}`;
+        const storedOTP = await redisClient.get(key);
+        if(!storedOTP){
+            console.warn(`OTP expired or not found for ${phone}`);
+            throw new Error('OTP expired or invalid');
+        }
+        if(storedOTP !== otp){
+            console.warn(`Invalid OTP for ${phone}`);
+            throw new Error('Invalid OTP');
+        }
+
+        await redisClient.del(key);
+        console.log(`OTP verified for ${phone}`);
+        return true;
+    }
+
     static validatePhone(phone){
         const regex = /^\+?[1-9]\d{1,14}$/;
         if(!regex.test(phone)){
             throw new Error('Invalid phone number');
         }
 
+    }
+
+    static async upsertCustomer(phone){
+        try{
+            const customer = await Customer.findOneAndUpdate(
+                { phone },
+                { phone, updated_at: Date.now() },
+                { upsert: true, new: true, setDefaultsOnInsert: true }
+            );
+            console.log(`Customer upserted: ${phone}`);
+            return customer;
+        } catch(error){
+            console.error(`Customer upsert error for ${phone}: ${err.message}`);
+            throw new Error('Failed to upsert customer');
+        }
     }
 }
 
