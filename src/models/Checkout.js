@@ -34,6 +34,9 @@ const checkoutSchema = mongoose.Schema({
     },
     cart_items: [cartItemSchema],
     shipping_address: addressSchema,
+    razorpay_order_id: {
+        type: String
+    },
     total: {
         type: Number,
         required: true,

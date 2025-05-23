@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.0",
     "rate-limit-redis": "^4.2.0",
+    "razorpay": "^2.9.6",
     "redis": "^4.7.0",
     "winston": "^3.17.0",
     "winston-mongodb": "^6.0.0"

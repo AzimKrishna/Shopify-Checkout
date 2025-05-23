@@ -19,11 +19,13 @@ const startServer = async () => {
 
         const authRoutes = require('./routes/auth');
         const checkoutRoutes = require('./routes/checkout');
+        const paymentRoutes = require('./routes/payment');
 
         app.use(express.json());
 
         app.use('/api/v1/auth', authRoutes);
         app.use('/api/v1/checkout', checkoutRoutes);
+        app.use('/api/v1/payment', paymentRoutes);
 
         app.get('/health', (req, res) => {
             res.status(200).json({
@@ -39,8 +41,8 @@ const startServer = async () => {
                     name: 'Test Store',
                     shopify_api_key: 'test_shopify_key',
                     shopify_access_token: 'test_shopify_token',
-                    razorpay_key_id: 'test_razorpay_id',
-                    razorpay_key_secret: 'test_razorpay_secret',
+                    razorpay_key_id: 'rzp_test_lJ8yC3OtL6fpkQ',
+                    razorpay_key_secret: 'szf6CQmpZpHjtyqUSIIanMnk',
                     textlocal_api_key: 'test_textlocal_key'
                 });
 
