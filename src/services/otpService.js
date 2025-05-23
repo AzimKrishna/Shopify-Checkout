@@ -8,8 +8,8 @@ class OTPService{
         return Math.floor(10000 + Math.random() * 900000).toString(); 
     }
 
-    static async storeOTP(phone, otp){
-        const key = `otp:${phone}`;
+    static async storeOTP(merchant_id, phone, otp){
+        const key = `otp:${merchant_id}:${phone}`;
         await redisClient.setEx(key, 300, otp);
         console.log(`OTP stored for ${phone}, otp:${otp}`);
     }
@@ -33,7 +33,7 @@ class OTPService{
     }
 
     static async verifyOTP(phone, otp){
-        const key = `otp:${phone}`;
+        const key = `otp:${merchant_id}:${phone}`;
         const storedOTP = await redisClient.get(key);
         if(!storedOTP){
             console.warn(`OTP expired or not found for ${phone}`);

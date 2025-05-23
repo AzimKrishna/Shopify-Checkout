@@ -4,7 +4,10 @@ const jwt = require('jsonwebtoken');
 class AuthController {
     static async sendOTP(req, res, next){
         try {
-            const { phone } = req.body;
+            const { merchant_id, phone } = req.body;
+            if (!merchant_id) {
+                throw new Error('Merchant ID is required');
+            }
             OTPService.validatePhone(phone);
             const otp = OTPService.generateOTP();
             await OTPService.storeOTP(phone, otp);
@@ -18,7 +21,10 @@ class AuthController {
 
     static async verifyOTP(req, res, next){
         try{
-            const { phone, otp } = req.body;
+            const { merchant_id, phone, otp } = req.body;
+            if (!merchant_id) {
+                throw new Error('Merchant ID is required');
+            }
             OTPService.validatePhone(phone);
             await OTPService.verifyOTP(phone, otp);
             const customer = await OTPService.upsertCustomer(phone);

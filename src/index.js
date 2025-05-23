@@ -18,10 +18,12 @@ const startServer = async () => {
         await connectRedis();
 
         const authRoutes = require('./routes/auth');
+        const checkoutRoutes = require('./routes/checkout');
 
         app.use(express.json());
 
         app.use('/api/v1/auth', authRoutes);
+        app.use('/api/v1/checkout', checkoutRoutes);
 
         app.get('/health', (req, res) => {
             res.status(200).json({
