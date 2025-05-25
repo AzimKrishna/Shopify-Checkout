@@ -43,6 +43,7 @@ const startServer = async () => {
                     shopify_access_token: 'test_shopify_token',
                     razorpay_key_id: 'rzp_test_lJ8yC3OtL6fpkQ',
                     razorpay_key_secret: 'szf6CQmpZpHjtyqUSIIanMnk',
+                    razorpay_webhook_secret: 'test_webhook_secret',
                     textlocal_api_key: 'test_textlocal_key'
                 });
 
@@ -57,19 +58,19 @@ const startServer = async () => {
                     }]
                 });
 
-                const checkout = await Checkout.create({
-                    merchant_id: merchant._id,
-                    customer_id: customer._id,
-                    cart_items: [{
-                        item_id: 'prod_789',
-                        variant_id: 'var_101',
-                        quantity: 2,
-                        price: 100.00
-                    }],
-                    total: 200.00
-                });
+                // const checkout = await Checkout.create({
+                //     merchant_id: merchant._id,
+                //     customer_id: customer._id,
+                //     cart_items: [{
+                //         item_id: 'prod_789',
+                //         variant_id: 'var_101',
+                //         quantity: 2,
+                //         price: 100.00
+                //     }],
+                //     total: 200.00
+                // });
 
-                res.status(201).json({ merchant, customer, checkout });
+                res.status(201).json({ merchant, customer });
             } catch (err) {
                 next(err);
             }

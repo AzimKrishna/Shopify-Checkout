@@ -6,10 +6,14 @@ const redisUrl = process.env.REDIS_URL;
 const orderQueue = new Queue(queueName, redisUrl);
 
 orderQueue.process(async (job) => {
-    const { checkout_id, payment_status, payment_id } = job.data;
-    console.log(`Processing order job: ${JSON.stringify(job.data) }`);
-
-    return { checkout_id, status: 'processed' };
+    try {
+        console.log(`Processing order creation for checkout ${job.data.checkout_id}`);
+        // Placeholder: Task 6.1 will implement order creation
+        return { status: 'processed', checkout_id: job.data.checkout_id };
+    } catch (err) {
+        console.log(`Order creation error: ${err.message}`);
+        throw err;
+    }
 });
 
 orderQueue.on('completed', (job, result) => {

@@ -16,7 +16,7 @@ const cartItemSchema = mongoose.Schema({
         min: 1
     },
     price: {
-        type: Number, 
+        type: Number,
         required: true,
         min: 0
     }
@@ -44,7 +44,12 @@ const checkoutSchema = mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'success', 'failed'],
+        enum: ['pending', 'completed', 'failed'],
+        default: 'pending'
+    },
+    payment_status: {
+        type: String,
+        enum: ['pending', 'authorized', 'failed'],
         default: 'pending'
     },
     payment_id: {

@@ -31,6 +31,11 @@ const merchantSchema = mongoose.Schema({
         get: decrypt,
         set: encrypt
     },
+    razorpay_webhook_secret:{
+        type: String,
+        get: decrypt,
+        set: encrypt
+    },
     textlocal_api_key: {
         type: String,
         required: true,
