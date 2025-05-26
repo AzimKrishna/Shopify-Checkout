@@ -7,6 +7,12 @@ const merchantSchema = mongoose.Schema({
         required: true,
         trim: true
     },
+    shopify_store_domain:{
+        type: String,
+        required: true,
+        get: decrypt,
+        set: encrypt
+    },
     shopify_api_key: {
         type: String,
         required: true,

@@ -39,8 +39,9 @@ const startServer = async () => {
             try {
                 const merchant = await Merchant.create({
                     name: 'Test Store',
-                    shopify_api_key: 'test_shopify_key',
-                    shopify_access_token: 'test_shopify_token',
+                    shopify_api_key: '20d1ba1f2dbfe5b58d2812e3d9c6286e',
+                    shopify_store_domain: '',
+                    shopify_access_token: '20a3bcc11d47a5d40e4304351e5b474c',
                     razorpay_key_id: 'rzp_test_lJ8yC3OtL6fpkQ',
                     razorpay_key_secret: 'szf6CQmpZpHjtyqUSIIanMnk',
                     razorpay_webhook_secret: 'test_webhook_secret',

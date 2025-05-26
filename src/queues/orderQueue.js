@@ -7,9 +7,10 @@ const orderQueue = new Queue(queueName, redisUrl);
 
 orderQueue.process(async (job) => {
     try {
-        console.log(`Processing order creation for checkout ${job.data.checkout_id}`);
-        // Placeholder: Task 6.1 will implement order creation
-        return { status: 'processed', checkout_id: job.data.checkout_id };
+        const { checkout_id, payment_status, payment_id } = job.data;
+        console.log(`Processing order creation for checkout ${checkout_id}`);
+        const result = await OrderService.createShopifyOrder(checkout_id, payment_status, payment_id);
+        return result;
     } catch (err) {
         console.log(`Order creation error: ${err.message}`);
         throw err;

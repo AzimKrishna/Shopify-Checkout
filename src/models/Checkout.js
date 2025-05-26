@@ -55,10 +55,16 @@ const checkoutSchema = mongoose.Schema({
     payment_id: {
         type: String
     },
-    timestamp: {
+    shopify_order_id: {
+        type: String
+      },
+    created_at: {
         type: Date,
         default: Date.now
-    }
+    },
+    updated_at: {
+        type: Date
+      }
 });
 
 checkoutSchema.index({ merchant_id: 1 });
