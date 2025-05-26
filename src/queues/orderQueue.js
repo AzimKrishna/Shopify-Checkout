@@ -1,5 +1,5 @@
 const Queue = require('bull');
-
+const OrderService = require('../services/orderService');
 const queueName = 'order-queue';
 const redisUrl = process.env.REDIS_URL;
 

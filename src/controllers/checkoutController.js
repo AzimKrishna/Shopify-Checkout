@@ -26,6 +26,29 @@ class CheckoutController {
             next(error);
         }
     }
+
+    static async applyDiscount(req, res, next) {
+        try {
+            const { checkout_id } = req.params;
+            const { merchant_id, discount_code } = req.body;
+            const checkout = await CheckoutService.applyDiscount(checkout_id, merchant_id, discount_code);
+            res.status(200).json({
+                checkout_id: checkout._id,
+                merchant_id: checkout.merchant_id,
+                items: checkout.cart_items,
+                coupon_code: checkout.coupon_code,
+                discount: checkout.discount,
+                total: checkout.total,
+                status: checkout.status,
+                created_at: checkout.created_at,
+                modified_at: checkout.updated_at || checkout.created_at
+            })
+        } catch (error) {
+            res.status(400).json({
+                error: error.message,
+              });
+        }
+    }
 }
 
 module.exports = CheckoutController;

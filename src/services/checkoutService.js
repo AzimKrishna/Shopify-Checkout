@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Merchant = require('../models/Merchant');
 const Checkout = require('../models/Checkout');
 const Customer = require('../models/Customer');
+const CouponService = require('./couponService');
 
 
 class CheckoutService{
@@ -37,7 +38,12 @@ class CheckoutService{
 
             const checkout = await Checkout.create({
                 merchant_id,
-                cart_items,
+                cart_items: cart_items.map(item => ({
+                    item_id: item.item_id,
+                    variant_id: item.variant_id,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
                 total,
                 status: 'pending'
             });
@@ -103,6 +109,36 @@ class CheckoutService{
             console.log(`Checkout updated: ${checkout_id} for customer ${customer_id}`);
             return checkout;
         }catch (error){
+            throw error;
+        }
+    }
+
+    static async applyDiscount(checkout_id, merchant_id, coupon_code){
+        try {
+            if(!mongoose.Types.ObjectId.isValid(checkout_id)){
+                throw new Error('Invalid checkout ID');
+            }
+            if (!mongoose.Types.ObjectId.isValid(merchant_id)) {
+                throw new Error('Invalid merchant ID');
+            }
+
+            const checkout = await Checkout.findById(checkout_id);
+            if (!checkout) {
+                throw new Error('Checkout not found');
+            }
+            if (checkout.merchant_id.toString() !== merchant_id) {
+                throw new Error('Checkout does not belong to merchant');
+            }
+            if (checkout.status !== 'pending') {
+                throw new Error('Checkout is not in pending state');
+            }
+
+            await CouponService.applyCoupon(checkout, coupon_code, merchant_id);
+            await checkout.save();
+            console.log(`Discount applied to checkout: ${checkout._id}`);
+            return checkout;
+        } catch (error) {
+            console.error(`Discount application error: ${error.message}`);
             throw error;
         }
     }

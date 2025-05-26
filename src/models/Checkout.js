@@ -42,6 +42,16 @@ const checkoutSchema = mongoose.Schema({
         required: true,
         min: 0
     },
+    coupon_code: {
+        type: String,
+        uppercase: true,
+        trim: true
+    },
+    discount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
     status: {
         type: String,
         enum: ['pending', 'completed', 'failed'],

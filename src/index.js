@@ -7,6 +7,7 @@ const Customer = require('./models/Customer');
 const Checkout = require('./models/Checkout');
 const { connectRedis } = require('./config/redis');
 const orderQueue = require('./queues/orderQueue');
+const Coupon = require('./models/Coupon');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -57,6 +58,26 @@ const startServer = async () => {
                         pincode: '400001',
                         is_default: true
                     }]
+                });
+
+                const coupon = await Coupon.create({
+                    code: "SAVE10",
+                    merchant_id: merchant._id,
+                    discount_type: "fixed",
+                    discount_value: 10,
+                    max_usage: 100,
+                    expires_at: new Date("2025-12-31T23:59:59Z"),
+                    used_count: 0,
+                });
+
+                const coupon2 = await Coupon.create({
+                    code: "OFF20",
+                    merchant_id: merchant._id,
+                    discount_type: "percentage",
+                    discount_value: 20,
+                    max_usage: 50,
+                    expires_at: new Date("2025-12-31T23:59:59Z"),
+                    used_count: 0,
                 });
 
                 // const checkout = await Checkout.create({
