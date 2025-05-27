@@ -28,6 +28,7 @@ class CheckoutController {
                 discount: checkout.discount,
                 total: checkout.total,
                 status: checkout.status,
+                payment_status: checkout.payment_status,
                 shipping_address: checkout.shipping_address,
                 created_at: checkout.created_at,
                 modified_at: checkout.updated_at || checkout.created_at

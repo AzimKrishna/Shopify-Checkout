@@ -58,6 +58,30 @@ class OrderService{
                 apiVersion: '2024-04' // Specify your desired API version
             });
 
+            let customerPayloadForShopify;
+
+            try {
+                const existingShopifyCustomers = await shopify.customer.search({ query: `phone:${shopifyCustomerPhone}` });
+                if (existingShopifyCustomers && existingShopifyCustomers.length > 0) {
+                    customerPayloadForShopify = { id: existingShopifyCustomers[0].id };
+                    console.log(`OrderService: Found existing Shopify customer ID ${existingShopifyCustomers[0].id} for phone ${shopifyCustomerPhone}`);
+                } else {
+                    customerPayloadForShopify = {
+                        phone: shopifyCustomerPhone,
+                        first_name: checkout.shipping_address.first_name || customer.first_name || 'Valued',
+                        last_name: checkout.shipping_address.last_name || customer.last_name || 'Customer',
+                        // email: customer.email, // If you collect email and want to send it
+                    };
+                    console.log(`OrderService: No Shopify customer found for phone ${shopifyCustomerPhone}. Shopify will attempt to create one.`);
+                }
+            } catch (customerSearchError) {
+                console.warn(`OrderService: Error searching for Shopify customer by phone ${shopifyCustomerPhone}: ${customerSearchError.message}. Falling back to customer creation data.`);
+                customerPayloadForShopify = { // Fallback data
+                    phone: shopifyCustomerPhone,
+                    first_name: checkout.shipping_address.first_name || customer.first_name || 'Valued',
+                    last_name: checkout.shipping_address.last_name || customer.last_name || 'Customer',
+                };
+            }
 
             const lineItems = checkout.cart_items.map(item => ({
                 variant_id: item.variant_id,
@@ -67,7 +91,7 @@ class OrderService{
 
             const orderDataPayload = {
                 line_items: lineItems,
-                customer: { phone: shopifyCustomerPhone },
+                customer: customerPayloadForShopify,
                 shipping_address: {
                     first_name: checkout.shipping_address.first_name || customer.first_name || 'Valued', // Placeholder if not available
                     last_name: checkout.shipping_address.last_name || customer.last_name || 'Customer',   // Placeholder

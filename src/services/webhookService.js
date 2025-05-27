@@ -3,6 +3,7 @@ const Merchant = require("../models/Merchant");
 const crypto = require('crypto');
 const Checkout = require("../models/Checkout");
 const orderQueue = require("../queues/orderQueue");
+const pusher = require("../config/pusher");
 
 
 class WebhookService {
@@ -60,6 +61,13 @@ class WebhookService {
                     payment_id: payment.id
                 });
 
+                await pusher.trigger(`checkout_${checkout._id}`, 'status-update', {
+                    checkout_id: checkout._id,
+                    status: checkout.status,
+                    payment_status: checkout.payment_status,
+                    shopify_order_id: checkout.shopify_order_id,
+                });
+
                 console.log(`Payment authorized for checkout ${checkout._id}, order queued`);
                 return { status: 'processed', checkout_id: checkout._id };
             } else if (event === 'payment.failed') {
@@ -68,6 +76,13 @@ class WebhookService {
                 checkout.status = 'failed';
                 checkout.updated_at = Date.now();
                 await checkout.save();
+
+                // Publish to Pusher
+                await pusher.trigger(`checkout_${checkout._id}`, 'status-update', {
+                    checkout_id: checkout._id,
+                    status: checkout.status,
+                    payment_status: checkout.payment_status,
+                });
 
                 console.log(`Payment failed for checkout ${checkout._id}`);
                 return { status: 'processed', checkout_id: checkout._id };

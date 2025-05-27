@@ -16,6 +16,10 @@ services:
       - MONGO_URI=${MONGO_URI}           # <-- Add this
       - JWT_SECRET=${JWT_SECRET}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY} # <-- Add thi
+      - PUSHER_APP_ID=${PUSHER_APP_ID}         # <-- Add if not present
+      - PUSHER_APP_KEY=${PUSHER_APP_KEY}         # <-- Add if not present
+      - PUSHER_APP_SECRET=${PUSHER_APP_SECRET} # <-- Add if not present
+      - PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER} # <-- Add if not present
     depends_on:
       - redis
     networks:
