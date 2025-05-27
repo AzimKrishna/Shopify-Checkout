@@ -3,7 +3,7 @@ const Merchant = require('../models/Merchant');
 const Checkout = require('../models/Checkout');
 const Customer = require('../models/Customer');
 const CouponService = require('./couponService');
-
+const ShopifyApiNode = require('shopify-api-node');
 
 class CheckoutService{
     static async initializeCheckout(merchant_id, cart_items, total){
@@ -36,14 +36,36 @@ class CheckoutService{
                 throw new Error('Total does not match cart items');
             }
 
+            const shopify = new ShopifyApiNode({
+                shopName: merchant.shopify_store_domain.replace('.myshopify.com', ''), // shopify-api-node expects just the shop name part
+                accessToken: merchant.shopify_access_token,
+                apiVersion: '2024-04' // Specify your desired API version
+            });
+
+            // Fetch product details for each item
+            const enrichedItems = await Promise.all(cart_items.map(async (item) => {
+                try {
+                    const product = await shopify.product.get(item.item_id);
+                    const variant = product.variants.find(v => v.id.toString() === item.variant_id);
+                    return {
+                        ...item,
+                        product_name: product.title,
+                        image_url: product.image?.src || variant?.image?.src || null,
+                    };
+                } catch (err) {
+                    console.error(`Failed to fetch product ${item.item_id}:`, err);
+                    return {
+                        ...item,
+                        product_name: `Unknown Product (ID: ${item.item_id})`,
+                        image_url: null,
+                    };
+                }
+            }));
+            
+
             const checkout = await Checkout.create({
                 merchant_id,
-                cart_items: cart_items.map(item => ({
-                    item_id: item.item_id,
-                    variant_id: item.variant_id,
-                    quantity: item.quantity,
-                    price: item.price
-                })),
+                cart_items: enrichedItems,
                 total,
                 status: 'pending'
             });
@@ -56,18 +78,15 @@ class CheckoutService{
         }
     }
 
-    static async updateCheckout(checkout_id, customer_id, merchant_id, shipping_address, save_to_customer){
+    static async updateCheckout(checkout_id, customer_id, shipping_address, save_to_customer){
         try {
-            if (!mongoose.Types.ObjectId.isValid(checkout_id) || !mongoose.Types.ObjectId.isValid(customer_id) || !mongoose.Types.ObjectId.isValid(merchant_id)) {   
+            if (!mongoose.Types.ObjectId.isValid(checkout_id) || !mongoose.Types.ObjectId.isValid(customer_id)) {   
                 throw new Error('Invalid ID format');
             } 
 
             const checkout = await Checkout.findById(checkout_id);
             if (!checkout) {
                 throw new Error('Checkout not found');
-            }
-            if (checkout.merchant_id.toString() !== merchant_id) {
-                throw new Error('Checkout does not belong to merchant');
             }
             if (checkout.status !== 'pending') {
                 throw new Error('Checkout is not in pending state');
@@ -113,32 +132,43 @@ class CheckoutService{
         }
     }
 
-    static async applyDiscount(checkout_id, merchant_id, coupon_code){
+    static async applyDiscount(checkout_id, coupon_code){
         try {
             if(!mongoose.Types.ObjectId.isValid(checkout_id)){
                 throw new Error('Invalid checkout ID');
-            }
-            if (!mongoose.Types.ObjectId.isValid(merchant_id)) {
-                throw new Error('Invalid merchant ID');
             }
 
             const checkout = await Checkout.findById(checkout_id);
             if (!checkout) {
                 throw new Error('Checkout not found');
             }
-            if (checkout.merchant_id.toString() !== merchant_id) {
-                throw new Error('Checkout does not belong to merchant');
-            }
+            const merchant_id_from_checkout = checkout.merchant_id;
             if (checkout.status !== 'pending') {
                 throw new Error('Checkout is not in pending state');
             }
 
-            await CouponService.applyCoupon(checkout, coupon_code, merchant_id);
+            await CouponService.applyCoupon(checkout, coupon_code, merchant_id_from_checkout);
             await checkout.save();
             console.log(`Discount applied to checkout: ${checkout._id}`);
             return checkout;
         } catch (error) {
             console.error(`Discount application error: ${error.message}`);
+            throw error;
+        }
+    }
+
+    static async getCheckout(checkout_id){
+        try {
+            if (!mongoose.Types.ObjectId.isValid(checkout_id)) {
+                throw new Error('Invalid Checkout ID format');
+            }
+            const checkout = await Checkout.findById(checkout_id).populate('merchant_id'); // Optionally populate merchant if needed immediately
+            if (!checkout) {
+                throw new Error('Checkout not found');
+            }
+
+            return checkout;
+        } catch (error) {
             throw error;
         }
     }

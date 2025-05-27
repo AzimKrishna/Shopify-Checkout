@@ -19,6 +19,12 @@ const merchantSchema = mongoose.Schema({
         get: decrypt,
         set: encrypt
     },
+    shopify_api_secret:{
+        type: String,
+        required: true,
+        get: decrypt,
+        set: encrypt
+    },
     shopify_access_token: {
         type: String,
         required: true,

@@ -7,5 +7,6 @@ const router = express.Router();
 router.post('/initialize', CheckoutController.initializeCheckout);
 router.patch('/update', authenticateJWT, CheckoutController.updateCheckout);
 router.post('/:checkout_id/discounts', CheckoutController.applyDiscount);
+router.get('/:id', CheckoutController.getCheckout);
 
 module.exports = router;

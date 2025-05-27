@@ -19,7 +19,9 @@ const cartItemSchema = mongoose.Schema({
         type: Number,
         required: true,
         min: 0
-    }
+    },
+    product_name: { type: String, required: true }, // New
+    image_url: { type: String }, // New, optional
 });
 
 const checkoutSchema = mongoose.Schema({
@@ -46,6 +48,10 @@ const checkoutSchema = mongoose.Schema({
         type: String,
         uppercase: true,
         trim: true
+    },
+    coupon_details: { // Store original coupon properties needed for Shopify
+        type: { type: String, enum: ['fixed', 'percentage'] }, // Original type from Coupon model
+        value: { type: Number }                               // Original value (e.g., 10 for fixed, 20 for 20%)
     },
     discount: {
         type: Number,

@@ -8,6 +8,7 @@ const Checkout = require('./models/Checkout');
 const { connectRedis } = require('./config/redis');
 const orderQueue = require('./queues/orderQueue');
 const Coupon = require('./models/Coupon');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -23,6 +24,12 @@ const startServer = async () => {
         const paymentRoutes = require('./routes/payment');
 
         app.use(express.json());
+
+        app.use(cors({
+            origin: '*', // allow your Shopify store
+            methods: ['GET', 'POST', 'PATCH', 'PUT'],
+            credentials: true // if using cookies or authorization headers
+        }));
 
         app.use('/api/v1/auth', authRoutes);
         app.use('/api/v1/checkout', checkoutRoutes);
@@ -40,11 +47,12 @@ const startServer = async () => {
             try {
                 const merchant = await Merchant.create({
                     name: 'Test Store',
-                    shopify_api_key: '20d1ba1f2dbfe5b58d2812e3d9c6286e',
-                    shopify_store_domain: '',
-                    shopify_access_token: '20a3bcc11d47a5d40e4304351e5b474c',
-                    razorpay_key_id: 'rzp_test_lJ8yC3OtL6fpkQ',
-                    razorpay_key_secret: 'szf6CQmpZpHjtyqUSIIanMnk',
+                    shopify_api_key: process.env.SHOPIFY_API_KEY,
+                    shopify_api_secret: process.env.SHOPIFY_API_SECRET,
+                    shopify_store_domain: process.env.SHOPIFY_STORE_DOMAIN,
+                    shopify_access_token: process.env.SHOPIFY_ACCESS_TOKEN,
+                    razorpay_key_id: process.env.RAZORPAY_KEY_ID,
+                    razorpay_key_secret: process.env.RAZORPAY_KEY_SECRET,
                     razorpay_webhook_secret: 'test_webhook_secret',
                     textlocal_api_key: 'test_textlocal_key'
                 });

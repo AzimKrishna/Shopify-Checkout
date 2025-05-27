@@ -8,6 +8,7 @@ class CouponService{
             if(!coupon_code){
                 checkout.coupon_code = null;
                 checkout.discount = 0;
+                checkout.coupon_details = undefined; // Clear coupon details
                 const subtotal = checkout.cart_items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
                 checkout.total = subtotal;
                 console.log(`Discount removed from checkout: ${checkout._id}`);
@@ -44,6 +45,11 @@ class CouponService{
 
             checkout.coupon_code = coupon.code;
             checkout.discount = discount;
+            // Store original coupon details needed for Shopify
+            checkout.coupon_details = {
+                type: coupon.discount_type,         // 'fixed' or 'percentage'
+                value: coupon.discount_value        // The raw value (e.g., 10 for fixed amount, 20 for 20%)
+            };
             checkout.total = subtotal - discount;
 
             if (checkout.total < 0) checkout.total = 0;
@@ -53,8 +59,15 @@ class CouponService{
             console.log(`Coupon ${coupon.code} applied to checkout ${checkout._id}`);
             return checkout;
         } catch (err) {
-            console.error(`Coupon application error: ${err.message}`);
-            throw err;
+            console.error(`Coupon application error for code "${coupon_code}": ${err.message}`);
+            // If an error occurs, ensure checkout state is clean regarding coupon
+            checkout.coupon_code = null;
+            checkout.discount = 0;
+            checkout.coupon_details = undefined;
+            // Recalculate total without discount if an error occurred during application
+            const subtotal = checkout.cart_items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            checkout.total = subtotal;
+            throw err; // Re-throw the error to be handled by the controller
         }
     }
 }
