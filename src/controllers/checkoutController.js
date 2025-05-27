@@ -40,7 +40,7 @@ class CheckoutController {
 
     static async updateCheckout(req, res, next){
         try {
-            const { checkout_id, shipping_address, save_to_customer = true } = req.body;
+            const { checkout_id, shipping_address, save_to_customer = false } = req.body;
             const customer_id = req.customer_id;
             const checkout = await CheckoutService.updateCheckout(checkout_id, customer_id, shipping_address, save_to_customer);
             res.status(200).json({ message: 'Checkout updated', checkout_id: checkout._id });

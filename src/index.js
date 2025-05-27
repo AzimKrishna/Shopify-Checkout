@@ -22,18 +22,20 @@ const startServer = async () => {
         const authRoutes = require('./routes/auth');
         const checkoutRoutes = require('./routes/checkout');
         const paymentRoutes = require('./routes/payment');
+        const addressRoutes = require('./routes/addresses');
 
         app.use(express.json());
 
         app.use(cors({
             origin: '*', // allow your Shopify store
-            methods: ['GET', 'POST', 'PATCH', 'PUT'],
+            methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
             credentials: true // if using cookies or authorization headers
         }));
 
         app.use('/api/v1/auth', authRoutes);
         app.use('/api/v1/checkout', checkoutRoutes);
         app.use('/api/v1/payment', paymentRoutes);
+        app.use('/api/v1/addresses', addressRoutes);
 
         app.get('/health', (req, res) => {
             res.status(200).json({

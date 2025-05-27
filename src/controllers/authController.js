@@ -29,9 +29,9 @@ class AuthController {
             await OTPService.verifyOTP(merchant_id, phone, otp);
             const customer = await OTPService.upsertCustomer(phone);
             const token = jwt.sign(
-                { customer_id: customer._id, role: 'customer' },
+                { customer_id: customer._id, role: 'customer', phone: customer.phone },
                 process.env.JWT_SECRET,
-                { expiresIn: '1h' }
+                { expiresIn: '4d' }
             );
             console.log(`JWT issued for ${phone}`);
             res.status(200).json({ message: 'OTP verified', token });
