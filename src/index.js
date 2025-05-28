@@ -8,6 +8,7 @@ const Checkout = require('./models/Checkout');
 const { connectRedis } = require('./config/redis');
 const orderQueue = require('./queues/orderQueue');
 const Coupon = require('./models/Coupon');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const app = express();
@@ -18,6 +19,8 @@ const startServer = async () => {
 
         connectDB();
         await connectRedis();
+        app.use(cookieParser()); // <-- NEW: Before any routes that need cookie parsing
+
 
         const authRoutes = require('./routes/auth');
         const checkoutRoutes = require('./routes/checkout');
@@ -25,9 +28,13 @@ const startServer = async () => {
         const addressRoutes = require('./routes/addresses');
 
         app.use(express.json());
-
+        
         app.use(cors({
-            origin: '*', // allow your Shopify store
+            origin: [
+                process.env.FRONTEND_IFRAME_URL || 'https://shopify-checkout-frontend.serveo.net',
+                'https://shopify-checkout-backend.serveo.net',
+                'https://parvax.myshopify.com'
+            ], // allow your Shopify store
             methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
             credentials: true // if using cookies or authorization headers
         }));

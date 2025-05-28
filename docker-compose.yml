@@ -15,6 +15,7 @@ services:
       - REDIS_URL=${REDIS_URL}
       - MONGO_URI=${MONGO_URI}           # <-- Add this
       - JWT_SECRET=${JWT_SECRET}
+      - JWT_SESSION_SECRET=${JWT_SESSION_SECRET}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY} # <-- Add thi
       - PUSHER_APP_ID=${PUSHER_APP_ID}         # <-- Add if not present
       - PUSHER_APP_KEY=${PUSHER_APP_KEY}         # <-- Add if not present
